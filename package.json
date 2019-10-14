@@ -1,0 +1,19 @@
+{
+  "name": "papercall-to-hoverboard",
+  "version": "0.1.0",
+  "description": "Import data from PaperCall.io to Hoverboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/louistsaitszho/PaperCall-to-Hoverboard.git"
+  },
+  "author": "Louis Tsai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/louistsaitszho/PaperCall-to-Hoverboard/issues"
+  },
+  "homepage": "https://github.com/louistsaitszho/PaperCall-to-Hoverboard#readme"
+}
