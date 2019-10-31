@@ -11,23 +11,19 @@ var _ = require("lodash");
 var contents = fs.readFileSync(process.argv[2], "utf8");
 var data = JSON.parse(contents);
 
-var acceptedSpeakers = data.filter(submission => {
-  return submission.state == "accepted";
-});
+var dir = "./outputs";
 
-var speakers = acceptedSpeakers.map(x => {
-  return {
-    [_.snakeCase(x.name)]: {
-      bio: x.bio,
-      company: x.organization,
-      country: x.location,
-      features: false,
-      name: x.name
-    }
-  };
-});
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir);
+}
 
-const complexityMapper = pc => {
+var acceptedSubmissions = data.filter(
+  s => s.state == "accepted" && s.confirmed === true
+);
+
+// Sessions
+
+const sessionComplexityMapper = pc => {
   if (pc === "All") {
     return "Beginner";
   } else {
@@ -35,18 +31,90 @@ const complexityMapper = pc => {
   }
 };
 
-var sessions = acceptedSpeakers.map((x, i) => {
+var sessions = acceptedSubmissions.map((x, i) => {
   var index = 100 + i;
   return {
     [index]: {
-      complexity: complexityMapper(x.audience_level),
+      complexity: sessionComplexityMapper(x.audience_level),
       description: x.description,
-      speakers: _.compact([x.name, x.name_2].map(name => _.snakeCase(name))),
-      tags: x.tags,
+      speakers: [x.name, x.name_2]
+        .map(name => _.snakeCase(name))
+        .filter(n => n),
+      // tags: x.tags,
       title: x.title
     }
   };
 });
 
-fs.writeFileSync("speakers.json", JSON.stringify(speakers, null, 2));
-fs.writeFileSync("sessions.json", JSON.stringify(sessions, null, 2));
+fs.writeFileSync("outputs/sessions.json", JSON.stringify(sessions, null, 2));
+
+// Speakers
+
+var request = require("request");
+
+const download = (uri, filename) => {
+  request(uri).pipe(fs.createWriteStream(filename));
+};
+
+const baseUrl = "https://2019.devfest-berlin.de";
+
+// TODO i can probably use babel or somethign to get flat, right?
+Object.defineProperty(Array.prototype, "flat", {
+  value: function(depth = 1) {
+    return this.reduce(function(flat, toFlatten) {
+      return flat.concat(
+        Array.isArray(toFlatten) && depth > 1
+          ? toFlatten.flat(depth - 1)
+          : toFlatten
+      );
+    }, []);
+  }
+});
+
+var speakers = acceptedSubmissions
+  .map(s => {
+    return [
+      {
+        name: s.name,
+        avatar: s.avatar,
+        location: s.location,
+        bio: s.bio,
+        twitter: s.twitter,
+        url: s.url,
+        organization: s.organization
+      },
+      {
+        name: s.name_2,
+        avatar: s.avatar_2,
+        location: s.location_2,
+        bio: s.bio_2,
+        twitter: s.twitter_2,
+        url: s.url_2,
+        organization: s.organization_2
+      }
+    ].filter(x => x.name !== null);
+  })
+  .flat()
+  .map((speaker, index) => {
+    var snakeCaseName = _.snakeCase(speaker.name);
+    var fileName = `outputs/${snakeCaseName}.jpg`;
+    var photoUrl = `/images/speakers/${fileName}`;
+    download(speaker.avatar, fileName);
+    return {
+      [snakeCaseName]: {
+        name: speaker.name,
+        bio: speaker.bio,
+        company: speaker.organization,
+        country: speaker.location,
+        features: false,
+        photo: photoUrl,
+        photoUrl: `${baseUrl}${photoUrl}`,
+        order: index
+      }
+    };
+  })
+  .reduce((acc, obj) => {
+    return { ...acc, ...obj };
+  });
+
+fs.writeFileSync("outputs/speakers.json", JSON.stringify(speakers, null, 2));
