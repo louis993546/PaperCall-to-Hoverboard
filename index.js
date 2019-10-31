@@ -31,20 +31,24 @@ const sessionComplexityMapper = pc => {
   }
 };
 
-var sessions = acceptedSubmissions.map((x, i) => {
-  var index = 100 + i;
-  return {
-    [index]: {
-      complexity: sessionComplexityMapper(x.audience_level),
-      description: x.description,
-      speakers: [x.name, x.name_2]
-        .map(name => _.snakeCase(name))
-        .filter(n => n),
-      // tags: x.tags,
-      title: x.title
-    }
-  };
-});
+var sessions = acceptedSubmissions
+  .map((x, i) => {
+    var index = 100 + i;
+    return {
+      [index]: {
+        complexity: sessionComplexityMapper(x.audience_level),
+        description: x.description,
+        speakers: [x.name, x.name_2]
+          .map(name => _.snakeCase(name))
+          .filter(n => n),
+        // tags: x.tags,
+        title: x.title
+      }
+    };
+  })
+  .reduce((acc, obj) => {
+    return { ...acc, ...obj };
+  });
 
 fs.writeFileSync("outputs/sessions.json", JSON.stringify(sessions, null, 2));
 
