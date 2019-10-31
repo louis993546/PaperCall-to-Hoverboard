@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/louistsaitszho/PaperCall-to-Hoverboard/issues"
   },
-  "homepage": "https://github.com/louistsaitszho/PaperCall-to-Hoverboard#readme"
+  "homepage": "https://github.com/louistsaitszho/PaperCall-to-Hoverboard#readme",
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
 }
