@@ -102,18 +102,19 @@ var speakers = acceptedSubmissions
   .map((speaker, index) => {
     var snakeCaseName = _.snakeCase(speaker.name);
     var fileName = `outputs/${snakeCaseName}.jpg`;
-    var photoUrl = `/images/speakers/${fileName}`;
+    var photoUrl = `/images/speakers/${snakeCaseName}.jpg`;
+    var country = speaker.location === "Unknown" ? "" : speaker.location;
     download(speaker.avatar, fileName);
     return {
       [snakeCaseName]: {
         name: speaker.name,
         bio: speaker.bio,
         company: speaker.organization,
-        country: speaker.location,
+        country: country,
         features: false,
         photo: photoUrl,
         photoUrl: `${baseUrl}${photoUrl}`,
-        order: index
+        order: 2 + index
       }
     };
   })
