@@ -104,6 +104,15 @@ var speakers = acceptedSubmissions
     var fileName = `outputs/${snakeCaseName}.jpg`;
     var photoUrl = `/images/speakers/${snakeCaseName}.jpg`;
     var country = speaker.location === "Unknown" ? "" : speaker.location;
+    var socials = speaker.twitter
+      ? [
+          {
+            icon: "twitter",
+            link: `https://twitter.com/${speaker.twitter}`,
+            name: "Twitter"
+          }
+        ]
+      : null;
     download(speaker.avatar, fileName);
     return {
       [snakeCaseName]: {
@@ -114,7 +123,8 @@ var speakers = acceptedSubmissions
         features: false,
         photo: photoUrl,
         photoUrl: `${baseUrl}${photoUrl}`,
-        order: 2 + index
+        order: 2 + index,
+        socials: socials
       }
     };
   })
