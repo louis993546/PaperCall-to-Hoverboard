@@ -17,9 +17,7 @@ if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir);
 }
 
-var acceptedSubmissions = data.filter(
-  s => s.state == "accepted" && s.confirmed === true
-);
+var acceptedSubmissions = data.filter(s => s.state == "accepted");
 
 // Sessions
 
@@ -99,6 +97,7 @@ var speakers = acceptedSubmissions
     ].filter(x => x.name !== null);
   })
   .flat()
+
   .map((speaker, index) => {
     var snakeCaseName = _.snakeCase(speaker.name);
     var fileName = `outputs/${snakeCaseName}.jpg`;
@@ -132,4 +131,13 @@ var speakers = acceptedSubmissions
     return { ...acc, ...obj };
   });
 
-fs.writeFileSync("outputs/speakers.json", JSON.stringify(speakers, null, 2));
+fs.writeFileSync(
+  "outputs/speakers.json",
+  JSON.stringify(
+    speakers,
+    (key, value) => {
+      if (value !== null) return value;
+    },
+    2
+  )
+);
